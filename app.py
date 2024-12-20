@@ -86,7 +86,8 @@ elif page == "Model":
         'station': [station],
         'day_of_week': [day_of_week]
     })
-
+print("Input data shape:", input_data.shape)
+print("Input data columns:", input_data.columns)
     # Model selection
     model_choice = st.selectbox("Select model for prediction", ("Decision Tree", "Logistic Regression"))
 
