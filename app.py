@@ -87,8 +87,8 @@ if page == "EDA":
 elif page == "Model":
     st.title("Model")
     # Load models
-    decision_tree_model = joblib.load("DecisionTreeClassifier.joblib")
-    logistic_regression_model = joblib.load("LogisticRegression.joblib")
+    decision_tree_model = joblib.load("st20313528DecisionTreeClassifier.joblib")
+    logistic_regression_model = joblib.load("st20313528LogisticRegression.joblib")
     
 
     def normalize_input(data):
