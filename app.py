@@ -142,4 +142,34 @@ def main():
 
         # Predict button
         if st.button("Predict AQI"):
-            #
+            # Choose the model
+            if model_choice == "Decision Tree" and decision_tree_model:
+                prediction = predict_aqi(decision_tree_model, input_data, scaler)
+            elif model_choice == "Logistic Regression" and logistic_regression_model:
+                prediction = predict_aqi(logistic_regression_model, input_data, scaler)
+            else:
+                st.error("Model not loaded correctly")
+                prediction = None
+
+            # Display prediction
+            if prediction is not None:
+                st.subheader(f"Predicted AQI: {prediction}")
+
+    # Data Overview Page
+    elif page == "Data Overview":
+        st.title("Data Overview")
+        st.write("Information about the dataset")
+        st.write("View the notebook below:")
+
+        # Load and display the HTML file
+        try:
+            html_path = "st20313528.html"
+            with open(html_path, "r", encoding="utf-8") as f:
+                html_content = f.read()
+                st.components.v1.html(html_content, height=700, scrolling=True)
+        except Exception as e:
+            st.error(f"Error loading HTML file: {str(e)}")
+
+# Run the app
+if __name__ == "__main__":
+    main()
