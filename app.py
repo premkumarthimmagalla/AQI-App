@@ -48,9 +48,8 @@ elif page == "Model":
     
     try:
         # Load models
-        decision_tree_model = joblib.load("models/DecisionTreeClassifier.joblib")
-        logistic_regression_model = joblib.load("models/LogisticRegression.joblib")
-        random_forest_model = joblib.load("models/RandomForestClassifier.joblib")
+        decision_tree_model = joblib.load("DecisionTreeClassifier.joblib")
+        logistic_regression_model = joblib.load("LogisticRegression.joblib")
 
         # Function to predict AQI
         def predict_aqi(model, input_data):
