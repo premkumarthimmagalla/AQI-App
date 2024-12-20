@@ -10,22 +10,22 @@ page = st.sidebar.radio("Go to", ["EDA", "Model", "Data Overview"])
 if page == "EDA":
     st.title("Exploratory Data Analysis")
     st.markdown("1. Median pollutant levels per month for each year")
-    st.image('EDA/median pollutant levels per month for each year.png')
+    st.image('median pollutant levels per month for each year.png')
     
     st.markdown("2. Median pollutant levels per year")
-    st.image('EDA/median pollutant levels per year.png')
+    st.image('median pollutant levels per year.png')
 
     st.markdown("3. Pearson correlation matrix")
     st.image('EDA/Pearson correlation matrix.png')
 
     st.markdown("4. PM 2.5")
-    st.image('EDA/PM 2.5.png')
+    st.image('PM 2.5.png')
 
     st.markdown("5. Pollutant Levels by Day of the Week")
-    st.image('EDA/Pollutant Levels by Day of the Week.png')
+    st.image('Pollutant Levels by Day of the Week.png')
 
     st.markdown("6. Pollutant levels by hour of day")
-    st.image('EDA/pollutant levels by hour of day.png')
+    st.image('pollutant levels by hour of day.png')
 
 # Model Page
 elif page == "Model":
