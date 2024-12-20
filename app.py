@@ -16,7 +16,7 @@ if page == "EDA":
     st.image('median pollutant levels per year.png')
 
     st.markdown("3. Pearson correlation matrix")
-    st.image('EDA/Pearson correlation matrix.png')
+    st.image('Pearson correlation matrix.png')
 
     st.markdown("4. PM 2.5")
     st.image('PM 2.5.png')
