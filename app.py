@@ -34,10 +34,6 @@ elif page == "Model":
     decision_tree_model = joblib.load("DecisionTreeClassifier.joblib")
     logistic_regression_model = joblib.load("LogisticRegression.joblib")
 
-# Print the feature names
-print("Feature names:", decision_tree_model.feature_names_)
-print("Feature names:", LogisticRegression.joblib.feature_names_)
-
     # Function to predict AQI based on selected model
     def predict_aqi(model, input_data):
         try:
