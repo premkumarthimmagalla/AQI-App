@@ -1,7 +1,6 @@
 import streamlit as st
 import joblib
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
@@ -44,18 +43,19 @@ elif page == "Model":
     st.title("AQI Prediction")
 
     # Input fields for the features
-    No = st.selectbox("NO", [0, 1])
-    year = st.selectbox('Pick year', [2013, 2014, 2015, 2016, 2017])
-    month = st.selectbox("Month", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+    No = st.selectbox("NO",[0,1])
+    year=st.selectbox('Pick year', [2013,2014,2015,2016,2017])
+    # year = st.number_input("Year", min_value=2000, max_value=2100, step=1)
+    month = st.selectbox("Month",[1,2,3,4,5,6,7,8,9,10,11,12])
     day = st.slider('Day', 0, 31)
     hour = st.slider('Hour', 0, 24)
-    PM2_5 = st.number_input("PM2.5", min_value=0.0, max_value=999.0, step=0.1)
-    PM10 = st.number_input("PM10", min_value=2.0, max_value=999.0, step=0.1)
-    SO2 = st.number_input("SO2", min_value=2.8, max_value=999.0, step=0.1)
+    PM2_5 = st.number_input("PM2.5", min_value=0.0, max_value=999.0,step=0.1)
+    PM10 = st.number_input("PM10", min_value=2.0, max_value=999.0,step=0.1)
+    SO2 = st.number_input("SO2", min_value=2.8,max_value=999.0,step=0.1)
     NO2 = st.number_input("NO2", min_value=1.0, max_value=280.0)
-    CO = st.number_input("CO", min_value=100.0, max_value=1000.0, step=0.5)
+    CO = st.number_input("CO", min_value=100.0, max_value=1000.0,step=0.5)
     O3 = st.number_input("O3", min_value=0.2, max_value=1071.0, step=0.1)
-    TEMP = st.number_input("Temperature (TEMP)", min_value=-18.0, max_value=42.0, step=0.1)
+    TEMP = st.number_input("Temperature (TEMP)", min_value=-18.0, max_value=42.0,step=0.1)
     PRES = st.number_input("Pressure (PRES)", min_value=982.4, max_value=1042.8, step=0.1)
     DEWP = st.number_input("Dew Point (DEWP)", min_value=-43.4, max_value=29.1)
     RAIN = st.number_input("Rain", min_value=0.0, max_value=72.5, step=0.1)
@@ -87,27 +87,18 @@ elif page == "Model":
         'day_of_week': [day_of_week]
     })
 
-    # Normalize input data
-    if st.button("Calculate AQI"):
-        scaler = MinMaxScaler()
-        normalized_data = scaler.fit_transform(input_data)
-        normalized_df = pd.DataFrame(normalized_data, columns=input_data.columns)
+    # Model selection
+    model_choice = st.selectbox("Select model for prediction", ("Decision Tree", "Logistic Regression"))
 
-        st.write("Normalized Input Data:")
-        st.write(normalized_df)
+    # Predict AQI
+    if model_choice == "Decision Tree":
+        prediction = predict_aqi(decision_tree_model, input_data)
+    elif model_choice == "Logistic Regression":
+        prediction = predict_aqi(logistic_regression_model, input_data)
 
-        # Model selection
-        model_choice = st.selectbox("Select model for prediction", ("Decision Tree", "Logistic Regression"))
-
-        # Predict AQI
-        if model_choice == "Decision Tree":
-            prediction = predict_aqi(decision_tree_model, normalized_df)
-        elif model_choice == "Logistic Regression":
-            prediction = predict_aqi(logistic_regression_model, normalized_df)
-
-        # Display prediction
-        st.subheader(f"Predicted AQI: {prediction}")
-
+    # Display prediction
+    st.subheader(f"Predicted AQI: {prediction}")
+    
 # Data Overview Page
 elif page == "Data Overview":
     st.title("Data Overview")
