@@ -4,137 +4,124 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 
-# Function to load models with error handling
-def load_model(model_path):
-    try:
-        return joblib.load(model_path)
-    except Exception as e:
-        st.error(f"Error loading model {model_path}: {str(e)}")
-        return None
-
-# Function to preprocess input data
-def preprocess_input(input_data, scaler=None):
+# Comprehensive Logging Function
+def log_preprocessing_details(input_data, scaler):
     """
-    Preprocess input data using the provided scaler
-    If no scaler is provided, use StandardScaler
+    Detailed logging of preprocessing steps
     """
-    if scaler is None:
-        scaler = StandardScaler()
+    st.write("Raw Input Data:", input_data)
     
-    # Ensure input is converted to numpy array and reshaped if needed
+    # Convert input to numpy array
     input_array = np.array(input_data).reshape(1, -1)
     
+    # Log array details
+    st.write("Input Array Shape:", input_array.shape)
+    st.write("Input Array Dtype:", input_array.dtype)
+    
+    # Log scaler details
+    if scaler is not None:
+        st.write("Scaler Type:", type(scaler))
+        
+        # Check if scaler has been fitted
+        if hasattr(scaler, 'mean_'):
+            st.write("Scaler Mean:", scaler.mean_)
+            st.write("Scaler Scale:", scaler.scale_)
+            
+            # Log how many features scaler is expecting
+            st.write("Scaler Number of Features:", len(scaler.mean_))
+    
+    # Attempt preprocessing with detailed error handling
     try:
-        # If scaler is fitted, transform the data
-        if hasattr(scaler, 'scale_'):
-            return scaler.transform(input_array)
+        # Use transform if possible
+        if hasattr(scaler, 'transform'):
+            processed_data = scaler.transform(input_array)
         else:
-            # If scaler is not fitted, fit and transform
-            return scaler.fit_transform(input_array)
+            # Fallback to fit_transform
+            processed_data = scaler.fit_transform(input_array)
+        
+        st.write("Processed Data:", processed_data)
+        st.write("Processed Data Shape:", processed_data.shape)
+        
+        return processed_data
     except Exception as e:
-        st.error(f"Preprocessing error: {str(e)}")
+        st.error(f"Preprocessing Error: {str(e)}")
         return input_array
 
-# Function to predict AQI with error handling and preprocessing
+# Predict Function with Extensive Logging
 def predict_aqi(model, input_data, scaler=None):
     try:
-        # Preprocess input data
-        processed_data = preprocess_input(input_data, scaler)
+        # Log preprocessing details
+        processed_data = log_preprocessing_details(input_data, scaler)
+        
+        # Predict with additional logging
+        st.write("Model Type:", type(model))
+        
+        # Check model attributes
+        st.write("Model Attributes:")
+        st.write("Classes:", getattr(model, 'classes_', 'Not Available'))
         
         # Make prediction
         prediction = model.predict(processed_data)
         
-        # Additional debugging information
-        st.write("Raw Input:", input_data)
-        st.write("Processed Input:", processed_data)
-        
-        # If the model has prediction probabilities, show them
+        # Prediction probabilities
         if hasattr(model, 'predict_proba'):
             probabilities = model.predict_proba(processed_data)
             st.write("Prediction Probabilities:", probabilities)
+            
+            # Log class-wise probabilities
+            for i, prob in enumerate(probabilities[0]):
+                st.write(f"Class {i} Probability: {prob}")
         
         return prediction[0]
     except Exception as e:
-        st.error(f"Prediction error: {str(e)}")
+        st.error(f"Prediction Error: {str(e)}")
         return None
 
-# Main Streamlit App
+# Main Streamlit App (Same as previous version)
 def main():
     # Sidebar for navigation
-    st.sidebar.title("Navigation")
-    page = st.sidebar.radio("Go to", ["EDA", "Model", "Data Overview"])
+    st.sidebar.title("Debugging Mode")
+    page = st.sidebar.radio("Go to", ["Model Prediction", "Model Inspection"])
 
-    # EDA Page
-    if page == "EDA":
-        st.title("Exploratory Data Analysis")
-        st.markdown("1. Median pollutant levels per month for each year")
-        st.image('median pollutant levels per month for each year.png')
+    if page == "Model Prediction":
+        st.title("AQI Prediction with Detailed Debugging")
 
-        st.markdown("2. Median pollutant levels per year")
-        st.image('median pollutant levels per year.png')
+        # Load models with error handling
+        try:
+            decision_tree_model = joblib.load("DecisionTreeClassifier.joblib")
+            logistic_regression_model = joblib.load("LogisticRegression.joblib")
+        except Exception as e:
+            st.error(f"Model Loading Error: {str(e)}")
+            decision_tree_model = None
+            logistic_regression_model = None
 
-        st.markdown("3. Pearson correlation matrix")
-        st.image('Pearson correlation matrix.png')
-
-        st.markdown("4. PM 2.5")
-        st.image('PM 2.5.png')
-
-        st.markdown("5. Pollutant Levels by Day of the Week")
-        st.image('Pollutant Levels by Day of the Week.png')
-
-        st.markdown("6. Pollutant levels by hour of day")
-        st.image('pollutant levels by hour of day.png')
-
-    # Model Page
-    elif page == "Model":
-        st.title("AQI Prediction")
-
-        # Load models
-        decision_tree_model = load_model("DecisionTreeClassifier.joblib")
-        logistic_regression_model = load_model("LogisticRegression.joblib")
-        
-        # Load scaler (if available)
+        # Try loading scaler
         try:
             scaler = joblib.load("standard_scaler.joblib")
-        except Exception:
-            st.warning("No pre-fitted scaler found. Using default scaling.")
+            st.success("Scaler loaded successfully")
+        except Exception as e:
+            st.warning(f"Scaler Loading Error: {str(e)}")
             scaler = StandardScaler()
 
-        # Input fields for the features
-        col1, col2 = st.columns(2)
-
-        with col1:
-            # First column of inputs
-            No = st.selectbox("NO", [0, 1])
-            year = st.selectbox('Pick year', [2013, 2014, 2015, 2016, 2017])
-            month = st.selectbox("Month", list(range(1, 13)))
-            day = st.slider('Day', 0, 31)
-            hour = st.slider('Hour', 0, 24)
-            PM2_5 = st.number_input("PM2.5", min_value=0.0, max_value=999.0, step=0.1)
-            PM10 = st.number_input("PM10", min_value=2.0, max_value=999.0, step=0.1)
-            SO2 = st.number_input("SO2", min_value=2.8, max_value=999.0, step=0.1)
-
-        with col2:
-            # Second column of inputs
-            NO2 = st.number_input("NO2", min_value=1.0, max_value=280.0)
-            CO = st.number_input("CO", min_value=100.0, max_value=1000.0, step=0.5)
-            O3 = st.number_input("O3", min_value=0.2, max_value=1071.0, step=0.1)
-            TEMP = st.number_input("Temperature (TEMP)", min_value=-18.0, max_value=42.0, step=0.1)
-            PRES = st.number_input("Pressure (PRES)", min_value=982.4, max_value=1042.8, step=0.1)
-            DEWP = st.number_input("Dew Point (DEWP)", min_value=-43.4, max_value=29.1)
-            RAIN = st.number_input("Rain", min_value=0.0, max_value=72.5, step=0.1)
-            wd = st.number_input("Wind Direction (wd)", min_value=0, max_value=360, step=1)
-            WSPM = st.number_input("Wind Speed (WSPM)", min_value=0.0, max_value=13.2, step=0.1)
-            station = st.number_input("Station ID", min_value=0, max_value=100, step=1)
-            day_of_week = st.number_input("Day of Week (day_of_week)", min_value=0, max_value=6, step=1)
-
-        # Creating input data as list
-        input_data = [
-            No, year, month, day, hour, 
-            PM2_5, PM10, SO2, NO2, CO, O3, 
-            TEMP, PRES, DEWP, RAIN, 
-            wd, WSPM, station, day_of_week
+        # Input fields (simplified for debugging)
+        st.write("### Enter Input Features")
+        
+        # Create input fields dynamically
+        feature_names = [
+            'No', 'year', 'month', 'day', 'hour', 
+            'PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3', 
+            'TEMP', 'PRES', 'DEWP', 'RAIN', 
+            'wd', 'WSPM', 'station', 'day_of_week'
         ]
+        
+        input_data = []
+        for feature in feature_names:
+            # Determine appropriate input method based on feature
+            if feature in ['No', 'year', 'month', 'day', 'hour', 'station', 'day_of_week']:
+                value = st.number_input(feature, value=0)
+            else:
+                value = st.number_input(feature, value=0.0, format="%.2f")
+            input_data.append(value)
 
         # Model selection
         model_choice = st.selectbox("Select model for prediction", 
@@ -142,6 +129,8 @@ def main():
 
         # Predict button
         if st.button("Predict AQI"):
+            st.write("### Prediction Details")
+            
             # Choose the model
             if model_choice == "Decision Tree" and decision_tree_model:
                 prediction = predict_aqi(decision_tree_model, input_data, scaler)
@@ -155,20 +144,39 @@ def main():
             if prediction is not None:
                 st.subheader(f"Predicted AQI: {prediction}")
 
-    # Data Overview Page
-    elif page == "Data Overview":
-        st.title("Data Overview")
-        st.write("Information about the dataset")
-        st.write("View the notebook below:")
+    elif page == "Model Inspection":
+        st.title("Model and Scaler Inspection")
+        
+        # File uploader for model and scaler
+        uploaded_model = st.file_uploader("Upload Model File", type=['.joblib', '.pkl'])
+        uploaded_scaler = st.file_uploader("Upload Scaler File", type=['.joblib', '.pkl'])
 
-        # Load and display the HTML file
-        try:
-            html_path = "st20313528.html"
-            with open(html_path, "r", encoding="utf-8") as f:
-                html_content = f.read()
-                st.components.v1.html(html_content, height=700, scrolling=True)
-        except Exception as e:
-            st.error(f"Error loading HTML file: {str(e)}")
+        # Inspect uploaded files
+        if uploaded_model is not None:
+            try:
+                model = joblib.load(uploaded_model)
+                st.write("Model Type:", type(model))
+                
+                # Check model attributes
+                st.write("Model Attributes:")
+                st.write("Classes:", getattr(model, 'classes_', 'Not Available'))
+                
+                if hasattr(model, 'feature_importances_'):
+                    st.write("Feature Importances:", model.feature_importances_)
+            except Exception as e:
+                st.error(f"Model Inspection Error: {str(e)}")
+
+        if uploaded_scaler is not None:
+            try:
+                scaler = joblib.load(uploaded_scaler)
+                st.write("Scaler Type:", type(scaler))
+                
+                # Check scaler attributes
+                if hasattr(scaler, 'mean_'):
+                    st.write("Scaler Mean:", scaler.mean_)
+                    st.write("Scaler Scale:", scaler.scale_)
+            except Exception as e:
+                st.error(f"Scaler Inspection Error: {str(e)}")
 
 # Run the app
 if __name__ == "__main__":
