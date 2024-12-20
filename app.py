@@ -34,6 +34,33 @@ elif page == "Model":
     decision_tree_model = joblib.load("DecisionTreeClassifier.joblib")
     logistic_regression_model = joblib.load("LogisticRegression.joblib")
 
+    # Display feature names for both models
+    st.subheader("Feature Names")
+    try:
+        st.write("Decision Tree Model Features:", decision_tree_model.feature_names_)
+    except AttributeError:
+        st.write("Could not retrieve feature names for Decision Tree model")
+
+    try:
+        st.write("Logistic Regression Model Features:", logistic_regression_model.feature_names_)
+    except AttributeError:
+        st.write("Could not retrieve feature names for Logistic Regression model")
+
+
+    # Display feature names for both models
+    st.subheader("Feature Names")
+    try:
+        st.write("Decision Tree Model Features:", decision_tree_model.feature_names_)
+    except AttributeError:
+        st.write("Could not retrieve feature names for Decision Tree model")
+
+    try:
+        st.write("Logistic Regression Model Features:", logistic_regression_model.feature_names_)
+    except AttributeError:
+        st.write("Could not retrieve feature names for Logistic Regression model")
+
+    # Rest of the existing Model page code...
+
     # Function to predict AQI based on selected model
     def predict_aqi(model, input_data):
         try:
