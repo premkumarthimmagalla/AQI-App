@@ -106,7 +106,7 @@ elif page == "Data Overview":
     st.write("View the notebook below:")
 
     # Load and display the HTML file
-    html_path = "C:/Users/Balls of Steel/Desktop/StreamlitWebBased/Copy_of_TN2024_624.html"
+    html_path = "st20313528.html"
     with open(html_path, "r", encoding="utf-8") as f:
         html_content = f.read()
         st.components.v1.html(html_content, height=700, scrolling=True)
